@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, LogBox } from 'react-native';
 import colors from '../Colors';
+import { AntDesign } from '@expo/vector-icons';
 
-const TodoList = ({ list, listId, updateList, updateUsers, updateNewTask, navigation }) => {
+LogBox.ignoreLogs([
+  'Non-serializable values were found in the navigation state',
+]);
+
+const TodoList = ({ list, updateList, deleteList, updateTodos, navigation }) => {
 
   const completedCount = list.todos.filter((todo) => todo.completed).length;
   const remainingCount = list.todos.length - completedCount;
 
   return (
     <View>
+      <TouchableOpacity style={[styles.deleteIcon]} onPress={() => deleteList(list.id)}>
+        <AntDesign name="delete" size={24} color="white" />
+      </TouchableOpacity>
       <TouchableOpacity
         style={[styles.listContainer, { backgroundColor: list.color }]}
-        onPress={() => { navigation.navigate('TodoModal', { list, listId, updateList, updateNewTask, updateUsers })}}
+        onPress={() => { navigation.navigate('TodoModal', { list, updateList, updateTodos })}}
       >
         <Text style={styles.listTitle} numberOfLines={1}>
           {list.name}
@@ -42,6 +50,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 200,
   },
+  deleteIcon: {
+    position: 'absolute',
+    top: 5,
+    right: 20,
+    zIndex: 10,
+    fontWeight: '600',
+  },  
   listTitle: {
     fontSize: 24,
     fontWeight: '700',

@@ -6,13 +6,12 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
   TextInput,
-  Alert
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import colors from '../Colors';
 
 const AddListModal = ({ navigation, route }) => {
-  const { addList, createNewTodo} = route.params;
+  const { createNewTodo } = route.params;
   const backgroundColors = [
     '#5CD859',
     '#24A6D9',
@@ -44,14 +43,13 @@ const AddListModal = ({ navigation, route }) => {
       return;
     }
       const list = {name, color};
-      addList(list);
       createNewTodo(list);
-
       setName("");
+      navigation.goBack();
   }
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
+    <KeyboardAvoidingView style={styles.container} behavior="height ">
       <TouchableOpacity
         style={{ position: 'absolute', top: 64, right: 32 }}
         onPress={() => {navigation.goBack()}}

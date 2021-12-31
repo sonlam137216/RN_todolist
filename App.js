@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import Home from './Home';
 import AddListModal from './components/AddListModal';
-import TodoList from './components/TodoList';
 import TodoModal from './components/TodoModal';
 
 const Stack = createNativeStackNavigator();
