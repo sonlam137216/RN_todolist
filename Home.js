@@ -7,6 +7,7 @@ import {
   FlatList,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import { uuid } from 'react-native-uuid';
 
 import TodoList from './components/TodoList';
 import colors from './Colors';
@@ -18,6 +19,8 @@ import {
   addDoc,
   updateDoc,
   doc,
+  deleteDoc,
+  orderBy,
 } from 'firebase/firestore';
 
 const Home = ({ navigation }) => {
@@ -29,44 +32,37 @@ const Home = ({ navigation }) => {
   const createNewTodo = async (list) => {
     await addDoc(userCollectionRef, {
       ...list,
-      id: lists.length + 1,
       todos: [],
     });
+    await getUsers();
   };
 
-  // update completed task
-  const updateUsers = async (id, todos) => {
-    const userDoc = doc(db, 'users', id);
+  // update todos
+  const updateTodos = async (list, todos) => {
+    const userDoc = doc(db, 'users', list.id);
     const newFields = { todos: todos };
     await updateDoc(userDoc, newFields);
+    await getUsers();
   };
 
-  // update add new task
-  const updateNewTask = async (id, todos) => {
+  // delete list
+  const deleteList = async (id) => {
     const userDoc = doc(db, 'users', id);
-    const newFields = { todos: todos };
-    await updateDoc(userDoc, newFields);
+    deleteDoc(userDoc);
+    await getUsers();
   };
-
+  const getUsers = async () => {
+    const data = await getDocs(userCollectionRef, orderBy('name', 'desc'));
+    setLists(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+  };
   // get Data
   useEffect(() => {
-    const getUsers = async () => {
-      const data = await getDocs(userCollectionRef);
-      setLists(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    };
     getUsers();
   }, []);
 
-  
-
-  const addList = (list) => {
-    setLists([...lists, { ...list, id: lists.length + 1, todos: [] }]);
-  };
-
   const updateList = (list) => {
     const newLists = lists.map((item) => {
-        console.log(item.id);
-      return item.id === list.id ? list : item;
+      return item.id == list.id ? list : item;
     });
     setLists(newLists);
   };
@@ -75,10 +71,9 @@ const Home = ({ navigation }) => {
     return (
       <TodoList
         list={list}
-        listId={list.id}
         updateList={updateList}
-        updateUsers={updateUsers}
-        updateNewTask={updateNewTask}
+        updateTodos={updateTodos}
+        deleteList={deleteList}
         navigation={navigation}
       />
     );
@@ -86,7 +81,6 @@ const Home = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-
       <View style={{ flexDirection: 'row' }}>
         <View style={styles.divider} />
         <Text style={styles.title}>
@@ -99,7 +93,9 @@ const Home = ({ navigation }) => {
       <View style={{ marginVertical: 40 }}>
         <TouchableOpacity
           style={styles.addList}
-          onPress={() => { navigation.navigate("AddListModal", {addList, createNewTodo}) }}
+          onPress={() => {
+            navigation.navigate('AddListModal', { createNewTodo });
+          }}
         >
           <AntDesign name="plus" size={16} color={colors.blue} />
         </TouchableOpacity>
@@ -119,9 +115,9 @@ const Home = ({ navigation }) => {
       </View>
     </View>
   );
-}
+};
 
-export default Home
+export default Home;
 
 const styles = StyleSheet.create({
   container: {

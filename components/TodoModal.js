@@ -14,16 +14,19 @@ import { AntDesign, Ionicons } from '@expo/vector-icons';
 import colors from '../Colors';
 
 const TodoModal = ({ route, navigation }) => {
-  const { list, listId, updateList, updateNewTask, updateUsers } = route.params;
+  const { list, updateList, updateTodos } = route.params;
   const taskCount = list.todos.length;
   const completedCount = list.todos.filter((todo) => todo.completed).length;
 
   const [newTodo, setNewTodo] = useState("");
 
+  const [bool, setBool] = useState(false);
+
   const toggleTodoCompleted = index => {
     list.todos[index].completed = !list.todos[index].completed;
-    updateUsers(listId, list.todos);
+    updateTodos(list, list.todos);
     updateList(list);
+    setBool(!bool);
   }
 
   const addTodo = () => {
@@ -34,7 +37,7 @@ const TodoModal = ({ route, navigation }) => {
 
     list.todos.push({title: newTodo, completed: false});
     updateList(list);
-    updateNewTask(listId, list.todos);
+    updateTodos(list, list.todos);
     setNewTodo("");
     Keyboard.dismiss();
   }
@@ -42,7 +45,8 @@ const TodoModal = ({ route, navigation }) => {
   const deleteLocalTask = (id) => {
     list.todos.splice(id, 1);
     updateList(list);
-    updateNewTask(listId, list.todos);
+    updateTodos(list, list.todos);
+    setBool(!bool);
   }
 
   const renderTodo = (todo, index) => {
@@ -76,7 +80,7 @@ const TodoModal = ({ route, navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="height">
       <SafeAreaView style={styles.container}>
         <TouchableOpacity
           style={{ position: 'absolute', top: 64, right: 32, zIndex: 10 }}
